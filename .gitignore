@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+.cursor/
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CloudBeaver credentials
+cloudbeaver_credentials.txt
+/cloudbeaver_workspace/.data/.cloudbeaver.runtime.conf
+/cloudbeaver_workspace/.data/.cloudbeaver.runtime.conf.bak
+/cloudbeaver_workspace/.data/.database-credentials.dat
+/cloudbeaver_workspace/.metadata/dbeaver-instance.properties
+/cloudbeaver_workspace/.metadata/dbeaver-workspace.properties
+/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/.credentials-config.json.bak
+/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/.data-sources.json.bak
+/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/credentials-config.json
+/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/data-sources.json
+/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/project-settings.json
