@@ -21,20 +21,18 @@ yarn.lock
 
 # Logs
 *.log
+logs/
+
+# Build and dist
+dist/
+build/
+
+# Python egg info
+*.egg-info/
+
+# CloudBeaver workspace (entire directory)
+cloudbeaver_workspace/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# CloudBeaver credentials
-cloudbeaver_credentials.txt
-/cloudbeaver_workspace/.data/.cloudbeaver.runtime.conf
-/cloudbeaver_workspace/.data/.cloudbeaver.runtime.conf.bak
-/cloudbeaver_workspace/.data/.database-credentials.dat
-/cloudbeaver_workspace/.metadata/dbeaver-instance.properties
-/cloudbeaver_workspace/.metadata/dbeaver-workspace.properties
-/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/.credentials-config.json.bak
-/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/.data-sources.json.bak
-/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/credentials-config.json
-/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/data-sources.json
-/cloudbeaver_workspace/GlobalConfiguration/.dbeaver/project-settings.json
