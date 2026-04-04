@@ -27,7 +27,7 @@ from readers.financial_reader import read_financial, function_define as financia
 from readers.kline_reader import read_kline, function_define as kline_function
 
 # DeepSeek API 配置
-API_KEY = os.getenv("DEEPSEEK_API_KEY", "sk-c35de7fafa0444039a570de87402fe2c")
+API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
 # 模型选择：
 # - deepseek-chat: 支持函数调用和流式输出，但不显示思考过程
