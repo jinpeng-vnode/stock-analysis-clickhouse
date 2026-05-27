@@ -8,6 +8,150 @@
 
 > 基于 ClickHouse 的高性能股票数据分析系统 | High-performance stock data analysis system based on ClickHouse
 
+## 功能全景图 — 完成度: 100%
+
+> 项目定义：基于 ClickHouse 的高性能沪深 A 股数据采集、技术分析、AI 智能研判一体化系统
+> 当前阶段：已上线（Docker 一键部署）
+> 下一步优先级：（待老板指定）
+> 禁止：（待老板指定）
+
+```
+stock-analysis-clickhouse
+├── 后端 API 服务（api_server.py + stock/）
+│   ├── stocks 股票数据模块
+│   │   ├── 股票列表查询 — ✅
+│   │   ├── 日K线数据查询 — ✅
+│   │   └── 批量数据获取 — ✅
+│   ├── stock_signal 信号分析模块
+│   │   ├── WR 威廉指标分析 — ✅
+│   │   ├── MA 移动平均线分析 — ✅
+│   │   └── 买卖信号生成 — ✅
+│   ├── stock_stats 统计分析模块
+│   │   ├── 市场概览统计 — ✅
+│   │   └── 涨跌排行 — ✅
+│   ├── stock_json_logic_filter 规则过滤模块
+│   │   ├── JsonLogic 数据过滤 — ✅
+│   │   └── 复杂条件组合查询 — ✅
+│   ├── stock_money_flow 资金流向模块
+│   │   ├── 个股资金流向 — ✅
+│   │   ├── 板块资金流向 — ✅
+│   │   └── 资金流向汇总 — ✅
+│   ├── stock_rule_hit 规则命中模块
+│   │   ├── 规则列表管理 — ✅
+│   │   └── 规则命中检测 — ✅
+│   ├── stock_info 基本信息模块
+│   │   ├── 公司基本信息 — ✅
+│   │   ├── PE 估值查询 — ✅
+│   │   └── 行业分类 — ✅
+│   ├── stock_announcement 公告模块
+│   │   ├── 公司公告查询 — ✅
+│   │   └── 公告搜索 — ✅
+│   └── stock_financial_report 财报模块
+│       ├── 利润表 — ✅
+│       ├── 资产负债表 — ✅
+│       └── 现金流量表 — ✅
+├── AI 智能分析（stock_ai/）
+│   ├── DeepSeek 函数调用分析（stock_ai_analysis.py） — ✅
+│   ├── Ollama 本地模型对话（ollama_chat.py） — ✅
+│   └── 多维度数据读取器（readers/）
+│       ├── K线数据读取 — ✅
+│       ├── 资金流向读取 — ✅
+│       ├── 新闻读取 — ✅
+│       ├── 公告读取 — ✅
+│       ├── 公司信息读取 — ✅
+│       ├── 财报读取 — ✅
+│       ├── 板块读取 — ✅
+│       ├── 股票信息读取 — ✅
+│       └── 股票搜索 — ✅
+├── 数据采集脚本（scripts/）
+│   ├── 股票代码导入（import_stock_codes.py） — ✅
+│   ├── 历史日K线抓取（fetch_daily_data.py） — ✅
+│   ├── 今日数据更新（update_today_data.py） — ✅
+│   ├── 资金流向更新（update_money_flow_data.py） — ✅
+│   ├── 技术指标计算（compute_indicators.py） — ✅
+│   ├── 公告抓取-按股票（announcement_fetch/producer_by_stock.py） — ✅
+│   ├── 公告抓取-按日期（announcement_fetch/producer_by_date.py） — ✅
+│   ├── 公告消费者（announcement_fetch/consumer.py） — ✅
+│   ├── 公司信息抓取（stock_company_info_fetch/） — ✅
+│   ├── 财报抓取（financial_report_fetch/） — ✅
+│   ├── 数据合并（merge_data.py） — ✅
+│   ├── CSV导入（import_csv_daily.py） — ✅
+│   ├── 规则命中种子（seed_rule_hits.py） — ✅
+│   ├── 数据库迁移（migrate.py） — ✅
+│   └── 清理非活跃分区（cleanup_inactive_parts.py） — ✅
+├── 公共模块（common/）
+│   ├── ClickHouse 客户端连接池（db/clickhouse_client.py） — ✅
+│   ├── 自动迁移工具（db/migrate.py） — ✅
+│   └── 技术指标工具（utils/）
+│       ├── Williams %R 计算 — ✅
+│       ├── MACD 计算 — ✅
+│       ├── 趋势分析 — ✅
+│       ├── 信号统计 — ✅
+│       └── 代理池 — ✅
+├── 前端应用（kline-vue/）
+│   ├── 页面路由（16 个页面）
+│   │   ├── K线分析页 — ✅
+│   │   ├── 候选管理页 — ✅
+│   │   ├── 股票信息管理页 — ✅
+│   │   ├── 信号分析页 — ✅
+│   │   ├── 系统状态页 — ✅
+│   │   ├── 回测配置页 — ✅
+│   │   ├── 回测结果页 — ✅
+│   │   ├── 资金流向页 — ✅
+│   │   ├── 规则命中页 — ✅
+│   │   ├── 股票公告页 — ✅
+│   │   ├── 财报表页 — ✅
+│   │   ├── 知识图谱页 — ✅
+│   │   ├── DeepSeek API 包装器页 — ✅
+│   │   ├── DeepSeek 股票分析页 — ✅
+│   │   ├── 多阶段Agent调试页 — ✅
+│   │   └── 日K/分钟K图表页 — ✅
+│   ├── 核心组件（components/）
+│   │   ├── KLineChart K线图表 — ✅
+│   │   ├── SignalAnalysis 信号分析 — ✅
+│   │   ├── JsonLogicSignalAnalysis 规则信号 — ✅
+│   │   ├── JsonLogicRuleEditor 规则编辑器 — ✅
+│   │   ├── StockRuleEditor 股票规则编辑 — ✅
+│   │   ├── SimTrading 模拟交易 — ✅
+│   │   ├── AutoTrading 自动交易 — ✅
+│   │   ├── StockSelector 股票选择器 — ✅
+│   │   ├── KnowledgeGraph 知识图谱 — ✅
+│   │   └── AnalysisComparison 分析对比 — ✅
+│   ├── 回测引擎（backtest/core/）
+│   │   ├── BacktestEngine 回测核心 — ✅
+│   │   ├── PositionManager 仓位管理 — ✅
+│   │   └── TradingCost 交易成本 — ✅
+│   ├── 知识图谱渲染（knowledge-graph/）
+│   │   ├── 图谱渲染器 — ✅
+│   │   └── 自定义节点系统 — ✅
+│   ├── AI 客户端工具（utils/）
+│   │   ├── DeepSeek API 客户端 — ✅
+│   │   ├── DeepSeek API 包装器 — ✅
+│   │   ├── Ollama 客户端 — ✅
+│   │   ├── 多阶段Agent — ✅
+│   │   └── AI 统一客户端 — ✅
+│   └── 状态管理（stores/）
+│       ├── 全局配置 — ✅
+│       └── 候选列表 — ✅
+├── 数据库（ClickHouse）
+│   ├── 核心表结构（sql/01_create_tables.sql） — ✅
+│   ├── 视图（sql/02_create_views.sql） — ✅
+│   ├── 资金流向表（sql/03_create_money_flow_tables.sql） — ✅
+│   ├── 规则命中表（sql/04_create_rule_stock_hit.sql） — ✅
+│   ├── 公告表（sql/05_create_announcement_tables.sql） — ✅
+│   └── 财报表（sql/06_create_financial_report_tables.sql） — ✅
+└── 基础设施（Docker）
+    ├── docker-compose 服务编排（10 服务） — ✅
+    ├── ClickHouse 数据库服务 — ✅
+    ├── FastAPI 后端服务 — ✅
+    ├── Vue3 前端服务 — ✅
+    ├── 数据抓取服务 — ✅
+    ├── 今日数据更新服务 — ✅
+    ├── 资金流向更新服务 — ✅
+    ├── 公告生产者×2 + 消费者 — ✅
+    └── DBeaver 数据库管理工具 — ✅
+```
+
 ## ✨ 项目亮点
 
 ### 🚀 极致性能
