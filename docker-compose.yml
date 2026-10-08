@@ -1,0 +1,206 @@
+name: stock_clickhouse
+services:
+  # ClickHouse数据库服务
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.3-alpine
+    container_name: stock_clickhouse_db
+    ports:
+      - "8123:8123"  # HTTP接口
+      - "9000:9000"  # Native接口
+    environment:
+      TZ: Asia/Shanghai
+      CLICKHOUSE_DB: stock_analysis
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./sql:/docker-entrypoint-initdb.d  # 自动执行SQL初始化脚本
+      - ./clickhouse-config.xml:/etc/clickhouse-server/config.d/timezone.xml  # 设置时区为中国标准时间
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 10
+
+  # API服务器
+  api:
+    build: .
+    container_name: stock_clickhouse_api
+    ports:
+      - "9010:8000"
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+  # 前端 Web 服务
+  frontend:
+    build:
+      context: ./kline-vue
+      dockerfile: Dockerfile
+    container_name: stock_clickhouse_frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # 数据抓取服务
+  data_fetcher:
+    build: .
+    container_name: stock_clickhouse_fetcher
+    command: python scripts/fetch_daily_data.py
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./logs:/app/logs
+
+  # 今日数据更新服务
+  update_today:
+    build: .
+    container_name: stock_clickhouse_update_today
+    command: python scripts/update_today_data.py
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+      - MAX_WORKERS=8
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./logs:/app/logs
+
+  # 资金流向数据更新服务
+  update_money_flow:
+    build: .
+    container_name: stock_clickhouse_update_money_flow
+    command: python scripts/update_money_flow_data.py --days 120
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+      - MAX_WORKERS=8
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./logs:/app/logs
+
+  # 股票公告抓取 - 按股票代码抓取链接（生产者1）
+  announcement_producer_by_stock:
+    build: .
+    container_name: stock_clickhouse_announcement_producer_by_stock
+    command: python scripts/announcement_fetch/producer_by_stock.py
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./logs:/app/logs
+
+  # 股票公告抓取 - 按日期范围抓取链接（生产者2）
+  announcement_producer_by_date:
+    build: .
+    container_name: stock_clickhouse_announcement_producer_by_date
+    command: python scripts/announcement_fetch/producer_by_date.py
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./logs:/app/logs
+
+  # 股票公告抓取 - 抓取详情并更新（消费者）
+  announcement_consumer:
+    build: .
+    container_name: stock_clickhouse_announcement_consumer
+    command: python scripts/announcement_fetch/consumer.py
+    environment:
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DB=stock_analysis
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./logs:/app/logs
+
+  # DBeaver Web版本 - 支持中文的数据库管理工具
+  dbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: stock_clickhouse_dbeaver
+    ports:
+      - "8082:8978"
+    environment:
+      - TZ=Asia/Shanghai
+      - CB_SERVER_NAME=ClickHouse管理工具
+      - CB_SERVER_URL=http://localhost:8082
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./cloudbeaver_workspace:/opt/cloudbeaver/workspace
+
+volumes:
+  clickhouse_data:
+    driver: local
+ 
+
+networks:
+  default:
+    name: stock_clickhouse_network

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+.cursor/
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+logs/
+
+# Build and dist
+dist/
+build/
+
+# Python egg info
+*.egg-info/
+
+# CloudBeaver workspace (entire directory)
+cloudbeaver_workspace/
+
+# OS
+.DS_Store
+Thumbs.db
